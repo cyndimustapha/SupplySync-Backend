@@ -1,22 +1,23 @@
 from db import conn, cursor
 
-class Purchase:
-    TABLE_NAME = "purchases"
+class Transaction:
+    TABLE_NAME = "transactions"
 
-    def __init__(self, user_id, product_id, date, quantity, total_price, id=None):
+    def __init__(self, user_id, product_id, date, quantity, total_price, type, id=None):
         self.id = id
         self.date = date
         self.quantity = quantity
         self.total_price = total_price
         self.user_id = user_id
         self.product_id = product_id
+        self.type = type
 
     def save(self):
         sql = f"""
-            INSERT INTO {self.TABLE_NAME} (user_id, product_id, date, quantity, total_price)
-            VALUES (?, ?, ?, ?, ?)
+            INSERT INTO {self.TABLE_NAME} (user_id, product_id, date, quantity, total_price, type)
+            VALUES (?, ?, ?, ?, ?, ?)
         """
-        cursor.execute(sql, (self.user_id, self.product_id, self.date, self.quantity, self.total_price))
+        cursor.execute(sql, (self.user_id, self.product_id, self.date, self.quantity, self.total_price, self.type))
         conn.commit()
         self.id = cursor.lastrowid
 
@@ -32,6 +33,7 @@ class Purchase:
                 date TEXT,
                 quantity INTEGER,
                 total_price INTEGER,
+                type TEXT,
                 FOREIGN KEY(user_id) REFERENCES users(id),
                 FOREIGN KEY(product_id) REFERENCES products(id)
             )
@@ -39,4 +41,4 @@ class Purchase:
         cursor.execute(sql)
         conn.commit()
 
-Purchase.create_table()
+Transaction.create_table()
