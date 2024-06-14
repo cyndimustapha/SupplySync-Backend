@@ -1,3 +1,4 @@
+# models/Purchases.py
 from db import conn, cursor
 
 class Purchase:

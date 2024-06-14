@@ -5,7 +5,7 @@ from models.Purchases import Purchase
 from models.Sales import Sale
 from models.Transactions import Transaction
 from models.Users import User
-from validation_models import ProductModel, PurchaseModel, SaleModel, TransactionModel, UserModel
+from validation_models import ProductModel, PurchaseModel, SaleModel, TransactionModel, UserModel, LoginModel
 
 # Create the FastAPI app
 app = FastAPI()
@@ -50,3 +50,11 @@ def create_user(user: UserModel):
     new_user = User(email=user.email, password=user.password, company_name=user.company_name, country=user.country, city=user.city)
     new_user.save()
     return new_user
+
+@app.post('/login')
+def login_user(user: LoginModel):
+    user = User.find_by_email_and_password(user.email, user.password)
+    if user:
+        return {"message": "Login successful"}
+    else:
+        raise HTTPException(status_code=400, detail="Invalid email or password")

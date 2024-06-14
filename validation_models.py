@@ -36,3 +36,7 @@ class UserModel(BaseModel):
     company_name: Optional[str] = None
     country: Optional[str] = None
     city: Optional[str] = None
+
+class LoginModel(BaseModel):
+    email: str
+    password: str

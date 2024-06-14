@@ -1,3 +1,4 @@
+# models/Products.py
 from db import conn, cursor
 
 class Product:

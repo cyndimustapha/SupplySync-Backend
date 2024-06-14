@@ -1,3 +1,4 @@
+# models/Sales.py
 from db import conn, cursor
 
 class Sale:

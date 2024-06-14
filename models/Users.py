@@ -1,3 +1,4 @@
+# models/Users.py
 from db import conn, cursor
 
 class User:
@@ -36,5 +37,12 @@ class User:
         """
         cursor.execute(sql)
         conn.commit()
+
+    @classmethod
+    def find_by_email_and_password(cls, email, password):
+        sql = f"SELECT * FROM {cls.TABLE_NAME} WHERE email = ? AND password = ?"
+        cursor.execute(sql, (email, password))
+        user = cursor.fetchone()
+        return user
 
 User.create_table()
