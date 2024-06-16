@@ -4,20 +4,20 @@ from db import conn, cursor
 class User:
     TABLE_NAME = "users"
 
-    def __init__(self, email, password, company_name, country, city, id=None):
+    def __init__(self, email, password, companyName, country, city, id=None):
         self.id = id
         self.email = email
         self.password = password
-        self.company_name = company_name
+        self.companyName = companyName
         self.country = country
         self.city = city
 
     def save(self):
         sql = f"""
-            INSERT INTO {self.TABLE_NAME} (email, password, company_name, country, city)
+            INSERT INTO {self.TABLE_NAME} (email, password, companyName, country, city)
             VALUES (?, ?, ?, ?, ?)
         """
-        cursor.execute(sql, (self.email, self.password, self.company_name, self.country, self.city))
+        cursor.execute(sql, (self.email, self.password, self.companyName, self.country, self.city))
         conn.commit()
         self.id = cursor.lastrowid
 
@@ -30,7 +30,7 @@ class User:
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 email TEXT NOT NULL UNIQUE,
                 password TEXT NOT NULL,
-                company_name TEXT,
+                companyName TEXT,
                 country TEXT,
                 city TEXT
             )

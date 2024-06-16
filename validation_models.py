@@ -8,20 +8,6 @@ class ProductModel(BaseModel):
     price: int
     stock: int
 
-class PurchaseModel(BaseModel):
-    user_id: int
-    product_id: int
-    date: datetime
-    quantity: int
-    total_price: int
-
-class SaleModel(BaseModel):
-    user_id: int
-    product_id: int
-    date: datetime
-    quantity: int
-    total_price: int
-
 class TransactionModel(BaseModel):
     user_id: int
     product_id: int
@@ -33,7 +19,7 @@ class TransactionModel(BaseModel):
 class UserModel(BaseModel):
     email: str
     password: str
-    company_name: Optional[str] = None
+    companyName: Optional[str] = None
     country: Optional[str] = None
     city: Optional[str] = None
 
