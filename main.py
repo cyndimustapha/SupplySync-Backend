@@ -25,6 +25,11 @@ def create_product(product: ProductModel):
     new_product.save()
     return new_product
 
+@app.get('/transactions')
+def get_transactions():
+    transactions = Transaction.find_all()
+    return transactions
+
 @app.post('/transactions')
 def create_transaction(transaction: TransactionModel):
     new_transaction = Transaction(user_id=transaction.user_id, product_id=transaction.product_id, date=transaction.date, quantity=transaction.quantity, total_price=transaction.total_price, type=transaction.type)
