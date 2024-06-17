@@ -4,19 +4,21 @@ from db import conn, cursor
 class Product:
     TABLE_NAME = "products"
 
-    def __init__(self, name, sku, price, stock, id=None):
+    def __init__(self, name, sku, price, description, quantity, supplier, id=None):
         self.id = id
         self.name = name
         self.sku = sku
         self.price = price
-        self.stock = stock
+        self.description = description
+        self.quantity = quantity
+        self.supplier = supplier
 
     def save(self):
         sql = f"""
-            INSERT INTO {self.TABLE_NAME} (name, sku, price, stock)
-            VALUES (?, ?, ?, ?)
+            INSERT INTO {self.TABLE_NAME} (name, sku, description, quantity, price, supplier)
+            VALUES (?, ?, ?, ?, ?, ?)
         """
-        cursor.execute(sql, (self.name, self.sku, self.price, self.stock))
+        cursor.execute(sql, (self.name, self.sku, self.description, self.quantity, self.price, self.supplier))
         conn.commit()
         self.id = cursor.lastrowid
 
@@ -29,8 +31,10 @@ class Product:
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL,
                 sku TEXT NOT NULL UNIQUE,
+                description TEXT NOT NULL,
+                quantity INTEGER NOT NULL,
                 price INTEGER NOT NULL,
-                stock INTEGER NOT NULL
+                supplier TEXT NOT NULL,     
             )
         """
         cursor.execute(sql)

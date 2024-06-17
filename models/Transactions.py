@@ -42,4 +42,10 @@ class Transaction:
         cursor.execute(sql)
         conn.commit()
 
+    @classmethod
+    def find_all(cls):
+        cursor.execute(f"SELECT * FROM {cls.TABLE_NAME}")
+        rows = cursor.fetchall()
+        return rows
+
 Transaction.create_table()

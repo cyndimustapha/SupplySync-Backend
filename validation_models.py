@@ -5,8 +5,10 @@ from datetime import datetime
 class ProductModel(BaseModel):
     name: str
     sku: str
+    description: str
+    quantity: int
     price: int
-    stock: int
+    supplier: str
 
 class TransactionModel(BaseModel):
     user_id: int
