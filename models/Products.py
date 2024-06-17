@@ -34,7 +34,7 @@ class Product:
                 description TEXT NOT NULL,
                 quantity INTEGER NOT NULL,
                 price INTEGER NOT NULL,
-                supplier TEXT NOT NULL,     
+                supplier TEXT NOT NULL   
             )
         """
         cursor.execute(sql)

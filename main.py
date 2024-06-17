@@ -8,7 +8,13 @@ from validation_models import ProductModel, TransactionModel, UserModel, LoginMo
 # Create the FastAPI app
 app = FastAPI()
 
-app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/")
 def read_root():
@@ -21,7 +27,7 @@ def get_products():
 
 @app.post('/products')
 def create_product(product: ProductModel):
-    new_product = Product(name=product.name, sku=product.sku, price=product.price, stock=product.stock)
+    new_product = Product(name=product.name, sku=product.sku, description = product.description, quantity = product.quantity, price=product.price, supplier = product.supplier)
     new_product.save()
     return new_product
 
