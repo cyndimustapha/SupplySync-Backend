@@ -31,6 +31,11 @@ def create_product(product: ProductModel):
     new_product.save()
     return new_product
 
+@app.get('/low_stock')
+def get_low_stock_products(threshold: int):
+    low_stock_products = Product.find_low_stock(threshold)
+    return low_stock_products
+
 @app.get('/transactions')
 def get_transactions():
     transactions = Transaction.find_all()
@@ -38,8 +43,21 @@ def get_transactions():
 
 @app.post('/transactions')
 def create_transaction(transaction: TransactionModel):
-    new_transaction = Transaction(user_id=transaction.user_id, product_id=transaction.product_id, date=transaction.date, quantity=transaction.quantity, total_price=transaction.total_price, type=transaction.type)
+    new_transaction = Transaction(
+        user_id=transaction.user_id,
+        product_id=transaction.product_id,
+        date=transaction.date,
+        quantity=transaction.quantity,
+        total_price=transaction.total_price,
+        type=transaction.type
+    )
+    
     new_transaction.save()
+    
+    # Update the product quantity based on the transaction type
+    quantity_change = transaction.quantity if transaction.type == "purchase" else -transaction.quantity
+    Product.update_quantity(transaction.product_id, quantity_change)
+
     return new_transaction
 
 @app.post('/users')
