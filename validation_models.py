@@ -7,7 +7,7 @@ class ProductModel(BaseModel):
     sku: str
     description: str
     quantity: int
-    price: int
+    price: float
     supplier: str
 
 class TransactionModel(BaseModel):
@@ -15,7 +15,7 @@ class TransactionModel(BaseModel):
     product_id: int
     date: datetime
     quantity: int
-    total_price: int
+    total_price: float
     type: str
 
 class UserModel(BaseModel):

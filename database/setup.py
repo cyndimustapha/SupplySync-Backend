@@ -1,16 +1,18 @@
-from .connection import get_db_connection
+from .connection import DatabaseConnection
 
-def create_tables():
-    conn = get_db_connection()
-    cursor = conn.cursor()
+def create_tables(db_file):
+    conn = DatabaseConnection(db_file)
+    cursor = conn.connect()
 
-    
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS products (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT,
+            sku TEXT,
+            description TEXT,
+            quantity INTEGER,
             price REAL,
-            quantity INTEGER
+            supplier TEXT
         )
     ''')
 
@@ -24,9 +26,19 @@ def create_tables():
         )
     ''')
 
-    conn.commit()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            email TEXT NOT NULL UNIQUE,
+            password TEXT NOT NULL,
+            companyName TEXT,
+            country TEXT,
+            city TEXT
+        )
+    ''')
+
     conn.close()
 
 if __name__ == '__main__':
-    create_tables()
+    create_tables('../db.sqlite')
     print("Database tables created successfully.")

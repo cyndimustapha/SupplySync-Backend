@@ -1,4 +1,4 @@
-from db import conn, cursor
+from database.connection import DatabaseConnection
 
 class Product:
     TABLE_NAME = "products"
@@ -12,14 +12,16 @@ class Product:
         self.price = price
         self.supplier = supplier
 
-    def save(self):
+    def save(self, db_file):
+        conn = DatabaseConnection(db_file)
+        cursor = conn.connect()
+
         if self.id is None:
             sql = f"""
                 INSERT INTO {self.TABLE_NAME} (name, sku, description, quantity, price, supplier)
                 VALUES (?, ?, ?, ?, ?, ?)
             """
             cursor.execute(sql, (self.name, self.sku, self.description, self.quantity, self.price, self.supplier))
-            conn.commit()
             self.id = cursor.lastrowid
         else:
             sql = f"""
@@ -28,48 +30,45 @@ class Product:
                 WHERE id=?
             """
             cursor.execute(sql, (self.name, self.sku, self.description, self.quantity, self.price, self.supplier, self.id))
-            conn.commit()
+
+        conn.close()
 
     @classmethod
-    def update_quantity(cls, product_id, quantity_change):
+    def update_quantity(cls, product_id, quantity_change, db_file):
+        conn = DatabaseConnection(db_file)
+        cursor = conn.connect()
+
         sql = f"""
             UPDATE {cls.TABLE_NAME}
             SET quantity = quantity + ?
             WHERE id = ?
         """
         cursor.execute(sql, (quantity_change, product_id))
-        conn.commit()
+
+        conn.close()
 
     @classmethod
-    def create_table(cls):
-        sql = f"""
-            CREATE TABLE IF NOT EXISTS {cls.TABLE_NAME} (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT,
-                sku TEXT,
-                description TEXT,
-                quantity INTEGER,
-                price INTEGER,
-                supplier TEXT
-            )
-        """
-        cursor.execute(sql)
-        conn.commit()
+    def find_all(cls, db_file):
+        conn = DatabaseConnection(db_file)
+        cursor = conn.connect()
 
-    @classmethod
-    def find_all(cls):
         cursor.execute(f"SELECT * FROM {cls.TABLE_NAME}")
         rows = cursor.fetchall()
+
+        conn.close()
         return rows
-    
+
     @classmethod
-    def find_low_stock(cls, threshold):
+    def find_low_stock(cls, threshold, db_file):
+        conn = DatabaseConnection(db_file)
+        cursor = conn.connect()
+
         sql = f"""
             SELECT * FROM {cls.TABLE_NAME}
             WHERE quantity <= ?
         """
         cursor.execute(sql, (threshold,))
         rows = cursor.fetchall()
-        return rows
 
-Product.create_table()
+        conn.close()
+        return rows
