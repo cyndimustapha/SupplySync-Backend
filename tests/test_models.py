@@ -2,6 +2,7 @@ import unittest
 from models.Products import Product
 from models.Transactions import Transaction
 from models.Users import User
+import datetime
 from database.setup import create_tables
 from database.connection import get_db_connection
 
@@ -40,7 +41,7 @@ class TestModels(unittest.TestCase):
         self.db_conn.execute("DELETE FROM products WHERE id = ?", (self.product.id,))
         self.db_conn.execute("DELETE FROM transactions WHERE id = ?", (self.transaction.id,))
         self.db_conn.execute("DELETE FROM users WHERE id = ?", (self.user.id,))
-        
+
     def test_create_transaction(self):
         # Create a new transaction
         transaction = Transaction(user_id=1, product_id=1, date=datetime.now(), 
