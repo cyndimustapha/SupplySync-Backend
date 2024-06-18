@@ -1,9 +1,11 @@
+# /models/Users.py
+
 from database.connection import DatabaseConnection
 
 class User:
     TABLE_NAME = "users"
 
-    def __init__(self, email, password, companyName, country, city, id=None):
+    def __init__(self, email, password, companyName=None, country=None, city=None, id=None):
         self.id = id
         self.email = email
         self.password = password
@@ -23,7 +25,7 @@ class User:
         self.id = cursor.lastrowid
 
         conn.close()
-        return self
+        return self  # Return the created user instance
 
     @classmethod
     def create_table(cls, db_file):
@@ -53,4 +55,6 @@ class User:
         user = cursor.fetchone()
 
         conn.close()
-        return user
+        if user:
+            return cls(*user)  # Instantiate User object from database row
+        return None

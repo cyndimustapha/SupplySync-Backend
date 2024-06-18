@@ -1,3 +1,4 @@
+# /models/Products.py
 from database.connection import DatabaseConnection
 
 class Product:
@@ -56,7 +57,11 @@ class Product:
         rows = cursor.fetchall()
 
         conn.close()
-        return rows
+        products = []
+        for row in rows:
+            product = cls(*row)  # Instantiate Product objects from database rows
+            products.append(product.__dict__)
+        return products
 
     @classmethod
     def find_low_stock(cls, threshold, db_file):
@@ -71,4 +76,8 @@ class Product:
         rows = cursor.fetchall()
 
         conn.close()
-        return rows
+        low_stock_products = []
+        for row in rows:
+            product = cls(*row)  # Instantiate Product objects from database rows
+            low_stock_products.append(product.__dict__)
+        return low_stock_products

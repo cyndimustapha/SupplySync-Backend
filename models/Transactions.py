@@ -1,5 +1,6 @@
+# /models/Transactions.py
+
 from database.connection import DatabaseConnection
-from .Products import Product
 
 class Transaction:
     TABLE_NAME = "transactions"
@@ -26,10 +27,6 @@ class Transaction:
 
         conn.close()
 
-        # Update the product quantity based on the transaction type
-        quantity_change = self.quantity if self.type == "purchase" else -self.quantity
-        Product.update_quantity(self.product_id, quantity_change, db_file)
-
     @classmethod
     def find_all(cls, db_file):
         conn = DatabaseConnection(db_file)
@@ -39,4 +36,8 @@ class Transaction:
         rows = cursor.fetchall()
 
         conn.close()
-        return rows
+        transactions = []
+        for row in rows:
+            transaction = cls(*row)  # Instantiate Transaction objects from database rows
+            transactions.append(transaction.__dict__)
+        return transactions

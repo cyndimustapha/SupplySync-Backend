@@ -1,3 +1,4 @@
+# /main.py
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from models.Products import Product
@@ -5,7 +6,7 @@ from models.Transactions import Transaction
 from models.Users import User
 from validation_models import ProductModel, TransactionModel, UserModel, LoginModel
 
-DATABASE_FILE = "db.sqlite"
+DATABASE_FILE = "./db.sqlite"
 
 app = FastAPI()
 

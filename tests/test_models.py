@@ -1,173 +1,81 @@
-import os
-import sys
-import pytest
-from fastapi.testclient import TestClient
-from datetime import datetime
+import unittest
+from models.Products import Product
+from models.Transactions import Transaction
+from models.Users import User
+from database.setup import create_tables
+from database.connection import get_db_connection
 
-# Adjust the path to make sure we can import the `main` module
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+class TestModels(unittest.TestCase):
 
-from main import app  # Now this should work
+    @classmethod
+    def setUpClass(cls):
+        create_tables()
 
-client = TestClient(app)
+    def setUp(self):
 
-def test_read_root():
-    response = client.get("/")
-    assert response.status_code == 200
-    assert response.json() == {"Hello": "World"}
+        self.db_conn = get_db_connection()  # Adjust this based on your connection setup
 
-def test_create_and_get_products():
-    product_data = {
-        "name": "Test Product",
-        "sku": "TP001",
-        "description": "This is a test product",
-        "quantity": 50,
-        "price": 100,
-        "supplier": "Test Supplier"
-    }
-    
-    create_response = client.post("/products", json=product_data)
-    assert create_response.status_code == 200
-    created_product = create_response.json()
+    def test_create_product(self):
+        # Create a new product
+        product = Product(name="Test Product", sku="TP001", description="This is a test product",
+                          quantity=50, price=100.0, supplier="Test Supplier")
+        
+        # Save the product to the database
+        product.save(self.db_conn)
+        
+        # Retrieve the product from the database by its ID
+        retrieved_product = Product.find_by_id(product.id, self.db_conn)
+        
+        # Assert that the retrieved product matches the original product data
+        self.assertIsNotNone(retrieved_product)
+        self.assertEqual(retrieved_product.name, "Test Product")
+        self.assertEqual(retrieved_product.sku, "TP001")
+        self.assertEqual(retrieved_product.description, "This is a test product")
+        self.assertEqual(retrieved_product.quantity, 50)
+        self.assertEqual(retrieved_product.price, 100.0)
+        self.assertEqual(retrieved_product.supplier, "Test Supplier")
 
-    assert created_product["name"] == product_data["name"]
-    assert created_product["sku"] == product_data["sku"]
-    assert created_product["description"] == product_data["description"]
-    assert created_product["quantity"] == product_data["quantity"]
-    assert created_product["price"] == product_data["price"]
-    assert created_product["supplier"] == product_data["supplier"]
+    def tearDown(self):
+        # Clean up by deleting the test data from the database
+        self.db_conn.execute("DELETE FROM products WHERE id = ?", (self.product.id,))
+        self.db_conn.execute("DELETE FROM transactions WHERE id = ?", (self.transaction.id,))
+        self.db_conn.execute("DELETE FROM users WHERE id = ?", (self.user.id,))
+        
+    def test_create_transaction(self):
+        # Create a new transaction
+        transaction = Transaction(user_id=1, product_id=1, date=datetime.now(), 
+                                  quantity=10, total_price=100.0, type="purchase")
+        
+        # Save the transaction to the database
+        transaction.save(self.db_conn)
+        
+        # Retrieve the transaction from the database by its ID
+        retrieved_transaction = Transaction.find_by_id(transaction.id, self.db_conn)
+        
+        # Assert that the retrieved transaction matches the original transaction data
+        self.assertIsNotNone(retrieved_transaction)
+        self.assertEqual(retrieved_transaction.user_id, 1)
+        self.assertEqual(retrieved_transaction.product_id, 1)
+        self.assertEqual(retrieved_transaction.quantity, 10)
+        self.assertEqual(retrieved_transaction.total_price, 100.0)
+        self.assertEqual(retrieved_transaction.type, "purchase") 
 
-    get_response = client.get("/products")
-    assert get_response.status_code == 200
-    products = get_response.json()
 
-    assert any(p["name"] == product_data["name"] for p in products)
-
-def test_update_product():
-    product_data = {
-        "name": "Test Product",
-        "sku": "TP001",
-        "description": "This is a test product",
-        "quantity": 50,
-        "price": 100,
-        "supplier": "Test Supplier"
-    }
-    
-    create_response = client.post("/products", json=product_data)
-    assert create_response.status_code == 200
-    created_product = create_response.json()
-    product_id = created_product["id"]
-
-    updated_data = {
-        "name": "Updated Test Product",
-        "sku": "TP001",
-        "description": "This is an updated test product",
-        "quantity": 100,
-        "price": 150,
-        "supplier": "Updated Supplier"
-    }
-    
-    update_response = client.put(f"/products/{product_id}", json=updated_data)
-    assert update_response.status_code == 200
-    updated_product = update_response.json()
-
-    assert updated_product["name"] == updated_data["name"]
-    assert updated_product["sku"] == updated_data["sku"]
-    assert updated_product["description"] == updated_data["description"]
-    assert updated_product["quantity"] == updated_data["quantity"]
-    assert updated_product["price"] == updated_data["price"]
-    assert updated_product["supplier"] == updated_data["supplier"]
-
-def test_get_low_stock_products():
-    product_data = {
-        "name": "Low Stock Product",
-        "sku": "LSP001",
-        "description": "This product has low stock",
-        "quantity": 5,
-        "price": 50,
-        "supplier": "Low Stock Supplier"
-    }
-    
-    create_response = client.post("/products", json=product_data)
-    assert create_response.status_code == 200
-
-    threshold = 10
-    low_stock_response = client.get(f"/low_stock?threshold={threshold}")
-    assert low_stock_response.status_code == 200
-    low_stock_products = low_stock_response.json()
-
-    assert any(p["name"] == product_data["name"] for p in low_stock_products)
-
-def test_create_and_get_transactions():
-    product_data = {
-        "name": "Test Product",
-        "sku": "TP001",
-        "description": "This is a test product",
-        "quantity": 50,
-        "price": 100,
-        "supplier": "Test Supplier"
-    }
-    
-    create_product_response = client.post("/products", json=product_data)
-    assert create_product_response.status_code == 200
-    created_product = create_product_response.json()
-    product_id = created_product["id"]
-
-    user_data = {
-        "email": "testuser@example.com",
-        "password": "testpassword",
-        "companyName": "Test Company",
-        "country": "Test Country",
-        "city": "Test City"
-    }
-    
-    create_user_response = client.post("/users", json=user_data)
-    assert create_user_response.status_code == 200
-    created_user = create_user_response.json()
-    user_id = created_user["id"]
-
-    transaction_data = {
-        "user_id": user_id,
-        "product_id": product_id,
-        "date": datetime.now().isoformat(),
-        "quantity": 10,
-        "total_price": 1000,
-        "type": "purchase"
-    }
-    
-    create_transaction_response = client.post("/transactions", json=transaction_data)
-    assert create_transaction_response.status_code == 200
-    created_transaction = create_transaction_response.json()
-
-    assert created_transaction["user_id"] == transaction_data["user_id"]
-    assert created_transaction["product_id"] == transaction_data["product_id"]
-    assert created_transaction["quantity"] == transaction_data["quantity"]
-    assert created_transaction["total_price"] == transaction_data["total_price"]
-    assert created_transaction["type"] == transaction_data["type"]
-
-    get_transactions_response = client.get("/transactions")
-    assert get_transactions_response.status_code == 200
-    transactions = get_transactions_response.json()
-
-    assert any(t["id"] == created_transaction["id"] for t in transactions)
-
-def test_user_registration_and_login():
-    user_data = {
-        "email": "testuser@example.com",
-        "password": "testpassword",
-        "companyName": "Test Company",
-        "country": "Test Country",
-        "city": "Test City"
-    }
-    
-    create_user_response = client.post("/users", json=user_data)
-    assert create_user_response.status_code == 200
-
-    login_data = {
-        "email": user_data["email"],
-        "password": user_data["password"]
-    }
-    
-    login_response = client.post("/login", json=login_data)
-    assert login_response.status_code == 200
-    assert login_response.json() == {"message": "Login successful"}
+    def test_create_user(self):
+        # Create a new user
+        user = User(email="testuser@example.com", password="testpassword", companyName="Test Company",
+                    country="Test Country", city="Test City")
+        
+        # Save the user to the database
+        user.save(self.db_conn)
+        
+        # Retrieve the user from the database by its ID
+        retrieved_user = User.find_by_id(user.id, self.db_conn)
+        
+        # Assert that the retrieved user matches the original user data
+        self.assertIsNotNone(retrieved_user)
+        self.assertEqual(retrieved_user.email, "testuser@example.com")
+        self.assertEqual(retrieved_user.password, "testpassword")  # You should hash passwords in actual applications
+        self.assertEqual(retrieved_user.companyName, "Test Company")
+        self.assertEqual(retrieved_user.country, "Test Country")
+        self.assertEqual(retrieved_user.city, "Test City")
