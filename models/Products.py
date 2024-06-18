@@ -61,5 +61,15 @@ class Product:
         cursor.execute(f"SELECT * FROM {cls.TABLE_NAME}")
         rows = cursor.fetchall()
         return rows
+    
+    @classmethod
+    def find_low_stock(cls, threshold):
+        sql = f"""
+            SELECT * FROM {cls.TABLE_NAME}
+            WHERE quantity <= ?
+        """
+        cursor.execute(sql, (threshold,))
+        rows = cursor.fetchall()
+        return rows
 
 Product.create_table()
