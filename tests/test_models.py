@@ -14,7 +14,7 @@ class TestModels(unittest.TestCase):
 
     def setUp(self):
 
-        self.db_conn = get_db_connection()  # Adjust this based on your connection setup
+        self.db_conn = get_db_connection()  
 
     def test_create_product(self):
         # Create a new product
@@ -76,7 +76,7 @@ class TestModels(unittest.TestCase):
         # Assert that the retrieved user matches the original user data
         self.assertIsNotNone(retrieved_user)
         self.assertEqual(retrieved_user.email, "testuser@example.com")
-        self.assertEqual(retrieved_user.password, "testpassword")  # You should hash passwords in actual applications
+        self.assertEqual(retrieved_user.password, "testpassword") 
         self.assertEqual(retrieved_user.companyName, "Test Company")
         self.assertEqual(retrieved_user.country, "Test Country")
         self.assertEqual(retrieved_user.city, "Test City")

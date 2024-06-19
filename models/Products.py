@@ -1,4 +1,3 @@
-# /models/Products.py
 from database.connection import DatabaseConnection
 
 class Product:
@@ -53,13 +52,13 @@ class Product:
         conn = DatabaseConnection(db_file)
         cursor = conn.connect()
 
-        cursor.execute(f"SELECT * FROM {cls.TABLE_NAME}")
+        cursor.execute(f"SELECT id, name, sku, description, quantity, price, supplier FROM {cls.TABLE_NAME}")
         rows = cursor.fetchall()
 
         conn.close()
         products = []
         for row in rows:
-            product = cls(*row)  # Instantiate Product objects from database rows
+            product = cls(*row)  
             products.append(product.__dict__)
         return products
 
@@ -69,7 +68,7 @@ class Product:
         cursor = conn.connect()
 
         sql = f"""
-            SELECT * FROM {cls.TABLE_NAME}
+            SELECT id, name, sku, description, quantity, price, supplier FROM {cls.TABLE_NAME}
             WHERE quantity <= ?
         """
         cursor.execute(sql, (threshold,))
@@ -78,6 +77,6 @@ class Product:
         conn.close()
         low_stock_products = []
         for row in rows:
-            product = cls(*row)  # Instantiate Product objects from database rows
+            product = cls(*row)  
             low_stock_products.append(product.__dict__)
         return low_stock_products

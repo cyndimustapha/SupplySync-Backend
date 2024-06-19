@@ -38,6 +38,6 @@ class Transaction:
         conn.close()
         transactions = []
         for row in rows:
-            transaction = cls(*row)  # Instantiate Transaction objects from database rows
+            transaction = cls(*row)  
             transactions.append(transaction.__dict__)
         return transactions
